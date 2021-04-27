@@ -10,8 +10,17 @@ export type ActionLogEntry = {
   passive: boolean
 }
 
+export type MutationLogEntry = {
+  attributeName: string | null,
+  controller: Controller
+  name: string,
+  oldValue: string | null,
+  type: string,
+}
+
 export class LogController extends Controller {
   static actionLog: ActionLogEntry[] = []
+  static mutationLog: MutationLogEntry[] = []
   initializeCount = 0
   connectCount = 0
   disconnectCount = 0
@@ -38,6 +47,14 @@ export class LogController extends Controller {
 
   log3(event: Event) {
     this.recordAction("log3", event)
+  }
+
+  logMutation(mutation: MutationRecord) {
+    this.recordMutation("logMutation", mutation)
+  }
+
+  logMutation2(mutation: MutationRecord) {
+    this.recordMutation("logMutation2", mutation)
   }
 
   logPassive(event: Event) {
@@ -67,6 +84,21 @@ export class LogController extends Controller {
       currentTarget: event.currentTarget,
       defaultPrevented: event.defaultPrevented,
       passive: passive || false
+    })
+  }
+
+  get mutationLog() {
+    return (this.constructor as typeof LogController).mutationLog
+  }
+
+  private recordMutation(name: string, mutation: MutationRecord) {
+    const { attributeName, oldValue, type } = mutation
+    this.mutationLog.push({
+      attributeName,
+      controller: this,
+      name,
+      oldValue,
+      type
     })
   }
 }
