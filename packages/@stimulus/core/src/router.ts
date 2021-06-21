@@ -84,6 +84,7 @@ export class Router implements ScopeObserverDelegate {
   }
 
   scopeConnected(scope: Scope) {
+    this.checkForMissingModule(scope.identifier)
     this.scopesByIdentifier.add(scope.identifier, scope)
     const module = this.modulesByIdentifier.get(scope.identifier)
     if (module) {
@@ -96,6 +97,13 @@ export class Router implements ScopeObserverDelegate {
     const module = this.modulesByIdentifier.get(scope.identifier)
     if (module) {
       module.disconnectContextForScope(scope)
+    }
+  }
+
+  /** @hidden */
+  private checkForMissingModule(identifier: string) {
+    if (!this.modulesByIdentifier.has(identifier)) {
+      this.application.missing(identifier)
     }
   }
 
